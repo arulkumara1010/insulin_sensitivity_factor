@@ -1,176 +1,182 @@
 import 'package:flutter/material.dart';
-import 'food.dart'; // Import the MealDetailPage
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart'; // Import the intl package for date formatting
 
-class FoodHistoryPage extends StatelessWidget {
-  final List<Map<String, dynamic>> foodHistory = [
-    {
-      'date': '2024-09-20',
-      'meals': [
-        {
-          'food': 'Breakfast - idli',
-          'carbs': 45,
-          'time': '08:00 AM',
-          'portion': '2 pieces'
-        },
-        {
-          'food': 'Lunch - Rice, chicken',
-          'carbs': 150,
-          'time': '12:30 PM',
-          'portion': '1 bowl'
-        },
-        {
-          'food': 'Dinner - chapati, gravy',
-          'carbs': 100,
-          'time': '07:00 PM',
-          'portion': '2 pieces'
-        },
-      ]
-    },
-    {
-      'date': '2024-09-21',
-      'meals': [
-        {
-          'food': 'Breakfast - idli',
-          'carbs': 45,
-          'time': '08:00 AM',
-          'portion': '2 pieces'
-        },
-        {
-          'food': 'Lunch - Rice, chicken',
-          'carbs': 150,
-          'time': '12:30 PM',
-          'portion': '1 bowl'
-        },
-        {
-          'food': 'Dinner - chapati, gravy',
-          'carbs': 100,
-          'time': '07:00 PM',
-          'portion': '2 pieces'
-        },
-      ]
-    },
-    {
-      'date': '2024-09-22',
-      'meals': [
-        {
-          'food': 'Breakfast - idli',
-          'carbs': 45,
-          'time': '08:00 AM',
-          'portion': '2 pieces'
-        },
-        {
-          'food': 'Lunch - Rice, chicken',
-          'carbs': 150,
-          'time': '12:30 PM',
-          'portion': '1 bowl'
-        },
-        {
-          'food': 'Dinner - chapati, gravy',
-          'carbs': 100,
-          'time': '07:00 PM',
-          'portion': '2 pieces'
-        },
-      ]
-    },
-  ];
+class HistoryPage extends StatefulWidget {
+  @override
+  _HistoryPageState createState() => _HistoryPageState();
+}
+
+class _HistoryPageState extends State<HistoryPage> {
+  List<Map<String, dynamic>> mealHistory = []; // Store meal history data
+
+  // Fetch meal history from Firestore
+  Future<void> fetchMealHistory() async {
+    final user = FirebaseAuth.instance.currentUser; // Get the current user
+    if (user != null) {
+      final userId = user.uid; // Get the user ID
+      try {
+        QuerySnapshot snapshot = await FirebaseFirestore.instance
+            .collection('users') // Your users collection
+            .doc(userId)
+            .collection('history') // Subcollection for history
+            .orderBy('timestamp', descending: true) // Order by timestamp
+            .get();
+
+        mealHistory = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        setState(() {}); // Update the UI with the fetched data
+      } catch (e) {
+        print('Error fetching meal history: $e');
+      }
+    } else {
+      print('No user is logged in.');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMealHistory(); // Fetch history data when the page loads
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green.shade200,
-        title: const Text(
-          'Food and Carb History',
-          style: TextStyle(color: Colors.black87),
-        ),
-      ),
-      body: Container(
-        color: Colors.green.shade50,
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: foodHistory.length,
-          itemBuilder: (context, index) {
-            final day = foodHistory[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MealDetailPage(
-                      date: day['date'],
-                      meals: day['meals'],
-                    ),
-                  ),
-                );
-              },
-              child: Card(
-                color: Colors.green.shade100,
-                elevation: 5,
-                margin: const EdgeInsets.symmetric(vertical: 10.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Date: ${day['date']}',
-                        style: const TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      ...day['meals'].map<Widget>((meal) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 6.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                meal['food'],
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              Text(
-                                '${meal['carbs']}g Carbs',
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                ),
+      body: Stack(
+        children: [
+          // Background image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/background.png"), // Use the same background image
+                fit: BoxFit.cover,
               ),
-            );
-          },
-        ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0), // Add padding to prevent overflow
+            child: Column(
+              children: [
+                AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  iconTheme: IconThemeData(color: Colors.black),
+                  title: Text(
+                    'Meal History',
+                    style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black),
+                  ),
+                  centerTitle: true,
+                ),
+                Expanded(
+                  child: mealHistory.isEmpty
+                      ? Center(
+                          child: CircularProgressIndicator(color: Colors.greenAccent),
+                        )
+                      : ListView.builder(
+                          padding: EdgeInsets.only(bottom: 16.0), // Add padding to avoid border crossing
+                          itemCount: mealHistory.length,
+                          itemBuilder: (context, index) {
+                            final mealData = mealHistory[index];
+                            final totalCarbs = mealData['totalCarbs'] ?? 0.0;
+                            final insulinDosage = mealData['insulinDosage'] ?? 0.0;
+                            final timestamp = (mealData['timestamp'] as Timestamp).toDate(); // Convert Firestore Timestamp to DateTime
+                            final formattedDate = DateFormat.yMMMd().add_jm().format(timestamp); // Format the date
+
+                            final itemCounts = (mealData['itemCounts'] as Map<String, dynamic>).map(
+                              (key, value) => MapEntry(
+                                key,
+                                Map<String, int>.from(value as Map<String, dynamic>),
+                              ),
+                            );
+
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              color: Colors.white, // White background for the card
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Total Carbs: ${totalCarbs.toStringAsFixed(2)}g',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black, // Text in black
+                                      ),
+                                    ),
+                                    Text(
+                                      'Insulin Dosage: ${insulinDosage.toStringAsFixed(2)} units',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        color: Colors.black, // Text in black
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      'Date & Time: $formattedDate',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        color: Colors.black, // Text in black
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      'Food Items:',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black, // Text in black
+                                      ),
+                                    ),
+                                    ...itemCounts.entries.map((entry) {
+                                      final category = entry.key;
+                                      final foodItems = entry.value;
+
+                                      // Filter out food items with a count of 0
+                                      final filteredFoodItems = foodItems.entries.where((foodEntry) => foodEntry.value > 0);
+
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          if (filteredFoodItems.isNotEmpty) // Only show category if it has food items with count > 0
+                                            Text(
+                                              '$category:',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black, // Text in black
+                                              ),
+                                            ),
+                                          ...filteredFoodItems.map((foodEntry) {
+                                            return Text(
+                                              '${foodEntry.key} (x${foodEntry.value})',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 14,
+                                                color: Colors.black, // Text in black
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      brightness: Brightness.light,
-      primarySwatch: Colors.green,
-      scaffoldBackgroundColor: const Color.fromARGB(255, 216, 247, 227),
-      appBarTheme: AppBarTheme(
-        color: Colors.green.shade200,
-      ),
-    ),
-    home: FoodHistoryPage(),
-  ));
 }

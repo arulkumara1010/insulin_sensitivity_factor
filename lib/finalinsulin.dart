@@ -5,8 +5,7 @@ import 'homepageaftersetup.dart';
 class InsulinDosagePage extends StatelessWidget {
   final double insulinDosage;
 
-  const InsulinDosagePage({required this.insulinDosage, Key? key})
-      : super(key: key);
+  const InsulinDosagePage({required this.insulinDosage, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +79,7 @@ class InsulinDosagePage extends StatelessWidget {
                   onPressed: () {
                      Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
                     );// Go back to the previous page
                   },
                   style: ElevatedButton.styleFrom(

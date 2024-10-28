@@ -117,9 +117,9 @@ class _FooddetailsPageState extends State<FooddetailsPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 TabBar(tabs: myTabs),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Expanded(
                   child: TabBarView(
                     children: [

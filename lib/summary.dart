@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart'; // Import the new page here
 class SummaryPage extends StatefulWidget {
   final Map<String, Map<String, int>> itemCounts;
 
-  const SummaryPage({required this.itemCounts, Key? key}) : super(key: key);
+  const SummaryPage({required this.itemCounts, super.key});
 
   @override
   _SummaryPageState createState() => _SummaryPageState();
@@ -85,8 +85,42 @@ Future<void> fetchCHOData() async {
   }
 
   // Navigate to the InsulinDosagePage
-  void goToInsulinDosagePage() {
+ Future<void> saveSummaryToFirestore(double insulinDosage) async {
+  final user = FirebaseAuth.instance.currentUser; // Get the current user
+  if (user != null) {
+    final userId = user.uid; // Get the user ID
+    final summaryData = {
+      'timestamp': FieldValue.serverTimestamp(), // Add a timestamp
+      'totalCarbs': totalCarbs,
+      'insulinDosage': insulinDosage,
+      'itemCounts': widget.itemCounts.map((category, foods) => MapEntry(
+          category,
+          foods.map((food, count) => MapEntry(food, count)))), // Ensure nested map is properly structured
+    };
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users') // Your users collection
+          .doc(userId) // Use the user ID to store data for this user
+          .collection('history') // Create a subcollection for history
+          .add(summaryData); // Store the summary data
+      print('Summary saved to Firestore successfully.');
+    } catch (e) {
+      if (e is FirebaseException) {
+        print('FirebaseException: ${e.message}');
+      } else {
+        print('Unknown error saving summary: $e');
+      }
+    }
+  } else {
+    print('No user is logged in. Cannot save summary.');
+  }
+}
+
+  // Navigate to the InsulinDosagePage
+  void goToInsulinDosagePage() async {
     double insulinDosage = calculateInsulinDosage();
+    await saveSummaryToFirestore(insulinDosage); // Save the summary first
     print(insulinDosage);
     Navigator.push(
       context,

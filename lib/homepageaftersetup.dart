@@ -4,9 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:insulin_sensitivity_factor/search.dart';
 import 'history.dart';
-import 'hom.dart';
+
 import 'fooddetails.dart';
+import 'profilepage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -75,8 +77,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    this.checkAuthentification();
-    this.getUser();
+    checkAuthentification();
+    getUser();
     _loadUserData();
   }
 
@@ -103,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Positioned(
           top: 40,
           left: MediaQuery.of(context).size.width / 2 - 170,
-          child: Container(
+          child: SizedBox(
             width: 340,
             height: 45,
             child: Row(
@@ -140,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Navigate to the profile page
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => EditProfile()),
+                      MaterialPageRoute(builder: (context) => ProfilePage()),
                     );
 
                     Navigator.pushNamed(context, "ProfilePage");
@@ -174,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                /* IconButton(
+                /*IconButton(
                   icon: const Icon(Icons.person, color: Colors.black, size: 30,),
                   onPressed: () {
                     //Navigator.pushNamed(context, "ProfilePage");
@@ -192,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const SizedBox(height: 60.0), // Space for the welcome text
 
-                const SizedBox(height: 100.0), // Space before the button
+                const SizedBox(height: 200.0), // Space before the button
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -227,14 +229,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => FoodHistoryPage()),
+                      MaterialPageRoute(builder: (context) => HistoryPage()),
                     );
                     Navigator.pushNamed(context, "HistoryPage");
                     // Implement your onPressed logic here
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
+                    backgroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 20),
                     shape: RoundedRectangleBorder(
@@ -246,12 +247,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: GoogleFonts.inter(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Colors.greenAccent,
                       letterSpacing: 5, // Text color
                     ),
                   ),
                 ),
                 const SizedBox(height: 150.0),
+
+               /* ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SearchPage()),
+                    );
+                    Navigator.pushNamed(context, "SearchPage");
+                    // Implement your onPressed logic here
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.greenAccent,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                  child: Text(
+                    'SEARCH',
+                    style: GoogleFonts.inter(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      letterSpacing: 5, // Text color
+                    ),
+                  ),
+                ), */
 
                 const SizedBox(height: 30.0),
 
